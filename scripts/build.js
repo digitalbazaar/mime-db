@@ -15,7 +15,22 @@ Object.keys(mime).forEach(function (type) {
   var d = mime[type]
   var t = type.toLowerCase()
   var o = db[t] = db[t] || {source: 'apache'}
-  if (d.extensions && d.extensions.length) o.extensions = (o.extensions || []).concat(d.extensions)
+  if (d.extensions && d.extensions.length) {
+    o.extensions = o.extensions || []
+    addExtensions(o.extensions, d.extensions)
+  }
+})
+
+// add the mime extensions from nginx
+var mime = require('../src/nginx.json')
+Object.keys(mime).forEach(function (type) {
+  var d = mime[type]
+  var t = type.toLowerCase()
+  var o = db[t] = db[t] || {source: 'nginx'}
+  if (d.extensions && d.extensions.length) {
+    o.extensions = o.extensions || []
+    addExtensions(o.extensions, d.extensions)
+  }
 })
 
 // now add all our custom extensions
@@ -54,3 +69,13 @@ Object.keys(charsets).forEach(function (name) {
 
 // write db
 require('./lib/write-db')('db.json', db)
+
+function addExtensions(dest, src) {console.dir(arguments);
+  for (var i = 0; i < src.length; i++) {
+    var ext = src[i]
+
+    if (dest.indexOf(ext) === -1) {
+      dest.push(ext)
+    }
+  }
+}
